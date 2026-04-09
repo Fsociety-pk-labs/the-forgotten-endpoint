@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Omnivore Corp — Global Data Intelligence</title>
+  <meta name="description" content="Omnivore Corp is a leading global data intelligence and analytics firm. Powering the world's decisions." />
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    /* ── Homepage-specific overrides ─────────────────────── */
+    .corp-hero {
+      min-height     : 100vh;
+      display        : flex;
+      flex-direction : column;
+      align-items    : center;
+      justify-content: center;
+      text-align     : center;
+      padding        : 4rem 2rem;
+      position       : relative;
+      overflow       : hidden;
+    }
+    .corp-hero::after {
+      content   : '';
+      position  : absolute;
+      inset     : 0;
+      background: linear-gradient(rgba(230,48,48,.025) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(230,48,48,.025) 1px, transparent 1px);
+      background-size: 80px 80px;
+      pointer-events  : none;
+    }
+    .corp-hero::before {
+      content      : '';
+      position     : absolute;
+      width        : 900px;
+      height       : 900px;
+      border-radius: 50%;
+      background   : radial-gradient(circle, rgba(230,48,48,.06) 0%, transparent 65%);
+      animation    : pulse-glow 5s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    /* Ticker */
+    .ticker-wrap {
+      width      : 100%;
+      overflow   : hidden;
+      background : #0a0e14;
+      border-top : 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding    : .5rem 0;
+    }
+    .ticker {
+      display   : flex;
+      gap       : 3rem;
+      white-space: nowrap;
+      animation : ticker-scroll 30s linear infinite;
+      font-family: var(--font-mono);
+      font-size  : .72rem;
+      color      : var(--text-dim);
+    }
+    .ticker span.up   { color: var(--green-dim); }
+    .ticker span.down { color: var(--red); }
+    @keyframes ticker-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* Stats row */
+    .stats-row {
+      display              : grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap                  : 1px;
+      background           : var(--border);
+      border               : 1px solid var(--border);
+      border-radius        : 8px;
+      overflow             : hidden;
+      margin-top           : 4rem;
+    }
+    .stat-cell {
+      background : var(--bg-panel);
+      padding    : 1.8rem 1.5rem;
+      text-align : center;
+    }
+    .stat-num {
+      font-family: var(--font-head);
+      font-size  : 2rem;
+      font-weight: 900;
+      color      : var(--red);
+      text-shadow: 0 0 20px rgba(230,48,48,.4);
+    }
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size  : .68rem;
+      color      : var(--text-dim);
+      margin-top : .4rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    /* Services */
+    .services-grid {
+      display              : grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap                  : 1.2rem;
+      margin-top           : 2.5rem;
+    }
+    .service-card {
+      background   : var(--bg-card);
+      border       : 1px solid var(--border);
+      border-radius: 8px;
+      padding      : 1.8rem;
+      transition   : border-color .25s, transform .25s, box-shadow .25s;
+    }
+    .service-card:hover {
+      border-color : var(--border-red);
+      transform    : translateY(-4px);
+      box-shadow   : 0 8px 28px rgba(0,0,0,.4);
+    }
+    .service-icon {
+      font-size    : 1.6rem;
+      margin-bottom: .8rem;
+    }
+    .service-name {
+      font-family  : var(--font-head);
+      font-size    : .85rem;
+      color        : #fff;
+      margin-bottom: .6rem;
+      letter-spacing: .06em;
+    }
+    .service-desc {
+      font-size  : .88rem;
+      color      : var(--text-dim);
+      font-weight: 300;
+      line-height: 1.7;
+    }
+
+    /* News */
+    .news-grid {
+      display              : grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap                  : 1.2rem;
+      margin-top           : 2.5rem;
+    }
+    .news-card {
+      background   : var(--bg-card);
+      border       : 1px solid var(--border);
+      border-radius: 8px;
+      padding      : 1.5rem;
+      position     : relative;
+      overflow     : hidden;
+    }
+    .news-date {
+      font-family   : var(--font-mono);
+      font-size     : .66rem;
+      color         : var(--text-faint);
+      letter-spacing: .1em;
+      margin-bottom : .6rem;
+    }
+    .news-title {
+      font-family  : var(--font-body);
+      font-size    : 1rem;
+      font-weight  : 600;
+      color        : var(--text-main);
+      margin-bottom: .5rem;
+      line-height  : 1.4;
+    }
+    .news-excerpt {
+      font-size  : .84rem;
+      color      : var(--text-dim);
+      font-weight: 300;
+      line-height: 1.7;
+    }
+    .news-tag {
+      display      : inline-block;
+      margin-top   : 1rem;
+      padding      : .2rem .7rem;
+      border-radius: 3px;
+      font-family  : var(--font-mono);
+      font-size    : .62rem;
+      background   : rgba(230,48,48,.1);
+      color        : var(--red-dim);
+      border       : 1px solid var(--border-red);
+      letter-spacing: .06em;
+    }
+
+    /* Security notice */
+    .notice-bar {
+      background   : rgba(10, 14, 20, 0.95);
+      border       : 1px solid var(--border-red);
+      border-radius: 6px;
+      padding      : 1rem 1.5rem;
+      display      : flex;
+      align-items  : center;
+      gap          : 1rem;
+      margin-top   : 3rem;
+    }
+    .notice-icon {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .notice-text {
+      font-family: var(--font-mono);
+      font-size  : .75rem;
+      color      : var(--text-dim);
+      line-height: 1.6;
+    }
+    .notice-text strong { color: var(--red); }
+
+    /* Portal CTA */
+    .portal-cta {
+      background   : var(--bg-panel);
+      border       : 1px solid var(--border);
+      border-radius: 10px;
+      padding      : 3rem;
+      text-align   : center;
+      margin-top   : 5rem;
+      position     : relative;
+      overflow     : hidden;
+    }
+    .portal-cta::before {
+      content   : '';
+      position  : absolute;
+      top: -1px; left: 20%; right: 20%;
+      height    : 2px;
+      background: linear-gradient(90deg, transparent, var(--red), transparent);
+    }
+
+    @media (max-width: 700px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <span class="nav-logo" style="color:var(--text-main);text-shadow:none;font-size:.95rem;letter-spacing:.2em;">
+      OMNIVORE<span style="color:var(--red);">CORP</span>
+    </span>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#news">News</a></li>
+      <li><a href="/login.html" style="color:var(--red);">Agent Portal</a></li>
+    </ul>
+  </nav>
+
+  <!-- STOCK TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <!-- duplicated for seamless loop -->
+      <span>OMNI &nbsp;<span class="up">▲ 3.24%</span></span>
+      <span>DATA-X &nbsp;<span class="down">▼ 1.07%</span></span>
+      <span>INTEL-Q &nbsp;<span class="up">▲ 0.88%</span></span>
+      <span>NETSEC &nbsp;<span class="up">▲ 5.11%</span></span>
+      <span>SURVEIL &nbsp;<span class="down">▼ 2.36%</span></span>
+      <span>CORENET &nbsp;<span class="up">▲ 0.43%</span></span>
+      <span>AXIOM &nbsp;<span class="down">▼ 0.72%</span></span>
+      <span>OMNI &nbsp;<span class="up">▲ 3.24%</span></span>
+      <span>DATA-X &nbsp;<span class="down">▼ 1.07%</span></span>
+      <span>INTEL-Q &nbsp;<span class="up">▲ 0.88%</span></span>
+      <span>NETSEC &nbsp;<span class="up">▲ 5.11%</span></span>
+      <span>SURVEIL &nbsp;<span class="down">▼ 2.36%</span></span>
+      <span>CORENET &nbsp;<span class="up">▲ 0.43%</span></span>
+      <span>AXIOM &nbsp;<span class="down">▼ 0.72%</span></span>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="corp-hero">
+    <p class="hero-eyebrow" style="color:var(--text-dim);"><span class="status-dot"></span> Secure Systems Online — EST. 2009</p>
+
+    <h1 class="hero-title" style="position:relative;z-index:1;">
+      Global Data<br /><span class="accent">Intelligence</span>
+    </h1>
+
+    <p class="hero-subtitle" style="position:relative;z-index:1;">
+      Omnivore Corp processes the world's data so the world's leaders<br />
+      can act with clarity, speed, and precision.
+    </p>
+
+    <div style="position:relative;z-index:1;margin-top:2.5rem;display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+      <a href="/login.html" class="btn btn-primary">Agent Portal</a>
+      <a href="#services" class="btn btn-outline">Our Services</a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row" style="position:relative;z-index:1;width:100%;max-width:800px;">
+      <div class="stat-cell fade-in">
+        <div class="stat-num">147</div>
+        <div class="stat-label">Countries Covered</div>
+      </div>
+      <div class="stat-cell fade-in">
+        <div class="stat-num">4.2B</div>
+        <div class="stat-label">Records Indexed</div>
+      </div>
+      <div class="stat-cell fade-in">
+        <div class="stat-num">99.97%</div>
+        <div class="stat-label">Uptime SLA</div>
+      </div>
+      <div class="stat-cell fade-in">
+        <div class="stat-num">TS/SCI</div>
+        <div class="stat-label">Clearance Level</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="section" id="services" style="background:var(--bg-deep);border-top:1px solid var(--border);">
+    <div class="container fade-in">
+      <p class="section-label">// Core Systems</p>
+      <h2 class="section-title">What We Run</h2>
+      <p style="color:var(--text-dim);font-size:.95rem;font-weight:300;max-width:560px;">
+        Our infrastructure operates across air-gapped and public networks, managing data pipelines for government and enterprise clients worldwide.
+      </p>
+
+      <div class="services-grid">
+        <div class="service-card fade-in">
+          <div class="service-icon">🛰</div>
+          <div class="service-name">Signal Intelligence</div>
+          <div class="service-desc">
+            Real-time ingestion and processing of open-source signals across 40+ languages. Delivered to analysts in under 800ms.
+          </div>
+        </div>
+        <div class="service-card fade-in">
+          <div class="service-icon">🔐</div>
+          <div class="service-name">Access & Identity</div>
+          <div class="service-desc">
+            Role-based access control with cryptographic token issuance for every internal agent and system endpoint.
+          </div>
+        </div>
+        <div class="service-card fade-in">
+          <div class="service-icon">📂</div>
+          <div class="service-name">Document Server</div>
+          <div class="service-desc">
+            Legacy document distribution infrastructure. Serves declassified and internal-use file assets across partner agencies.
+          </div>
+        </div>
+        <div class="service-card fade-in">
+          <div class="service-icon">🖥</div>
+          <div class="service-name">Command Infrastructure</div>
+          <div class="service-desc">
+            Hardened administrative platforms. Restricted access. No public documentation. Operational status: classified.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECURITY NOTICE -->
+  <section class="section" style="padding-top:0;padding-bottom:0;">
+    <div class="container fade-in">
+      <div class="notice-bar">
+        <span class="notice-icon">⚠️</span>
+        <div class="notice-text">
+          <strong>SECURITY ADVISORY:</strong> All access to internal portals is monitored and logged.
+          Unauthorised access attempts will be investigated. If you are an authorised agent, access your portal via the secure link above.
+          Contact your system administrator if you have lost your credentials.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWS -->
+  <section class="section" id="news">
+    <div class="container fade-in">
+      <p class="section-label">// Latest Dispatches</p>
+      <h2 class="section-title">Intelligence Briefings</h2>
+
+      <div class="news-grid">
+        <div class="news-card fade-in">
+          <div class="news-date">APR 07, 2026 &nbsp;|&nbsp; INTERNAL</div>
+          <div class="news-title">Q1 Infrastructure Audit Results Published</div>
+          <div class="news-excerpt">
+            The internal security committee has completed its quarterly audit. Several legacy endpoints flagged for review. Patches pending approval.
+          </div>
+          <span class="news-tag">INFRASTRUCTURE</span>
+        </div>
+        <div class="news-card fade-in">
+          <div class="news-date">MAR 28, 2026 &nbsp;|&nbsp; PUBLIC</div>
+          <div class="news-title">Omnivore Corp Expands Operations in Southeast Asia</div>
+          <div class="news-excerpt">
+            New data centres in Singapore and Kuala Lumpur will accelerate processing capacity by 40% for regional government partners.
+          </div>
+          <span class="news-tag">EXPANSION</span>
+        </div>
+        <div class="news-card fade-in">
+          <div class="news-date">MAR 15, 2026 &nbsp;|&nbsp; INTERNAL</div>
+          <div class="news-title">File Server Migration Delayed — Legacy Routes Still Active</div>
+          <div class="news-excerpt">
+            The planned migration of the document distribution service has been postponed. The legacy file API will remain operational until further notice.
+          </div>
+          <span class="news-tag">MAINTENANCE</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AGENT PORTAL CTA -->
+  <section class="section" style="padding-top:0;">
+    <div class="container fade-in">
+      <div class="portal-cta">
+        <p class="section-label" style="margin-bottom:.8rem;">// Authorised Personnel Only</p>
+        <h2 style="font-family:var(--font-head);font-size:1.6rem;color:#fff;margin-bottom:.8rem;">
+          Agent Authentication Portal
+        </h2>
+        <p style="color:var(--text-dim);font-size:.95rem;max-width:480px;margin:0 auto 2rem;font-weight:300;">
+          Clearance-based access to classified systems, file repositories, and administrative controls.
+        </p>
+        <a href="/login.html" class="btn btn-primary" style="font-size:.9rem;padding:.9rem 2.5rem;">
+          Access Portal
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>OMNIVORE CORP &mdash; Global Data Intelligence &mdash; &copy; 2026 All Rights Reserved</p>
+    <p class="mt-1" style="color:var(--text-faint);">
+      147 Countries &nbsp;|&nbsp; TS/SCI Cleared &nbsp;|&nbsp; Registered: Cayman Islands
+    </p>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terminal — The Forgotten Endpoint</title>
+  <meta name="description" content="Interactive API terminal for The Forgotten Endpoint CTF challenge." />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="/" class="nav-logo">fsociety</a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/login.html">Login</a></li>
+      <li><a href="/terminal.html">Terminal</a></li>
+    </ul>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <header class="page-header">
+    <p class="section-label">// Interactive API Explorer</p>
+    <h1 class="section-title" style="font-size:1.8rem;">Mission Terminal</h1>
+    <p style="font-family:var(--font-mono);font-size:.78rem;color:var(--text-dim);margin-top:.5rem;">
+      Use this panel to interact with all server endpoints.
+      Your session token is preserved across requests.
+    </p>
+  </header>
+
+  <!-- TOKEN DISPLAY -->
+  <div style="max-width:1100px;margin:1.5rem auto 0;padding:0 2.5rem;">
+    <div class="terminal" style="border-radius:6px;">
+      <div class="terminal-bar">
+        <span class="terminal-dot dot-red"></span>
+        <span class="terminal-dot dot-yellow"></span>
+        <span class="terminal-dot dot-green"></span>
+        <span class="terminal-title">session — token store</span>
+      </div>
+      <div class="terminal-body" style="padding:1rem 1.5rem;min-height:auto;">
+        <span class="prompt">$</span> token: <span id="token-display" class="flag-text">[ no token — authenticate first ]</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- API CARDS GRID -->
+  <div class="api-grid">
+
+    <!-- CARD 1: robots.txt -->
+    <div class="api-card">
+      <div class="api-card-head">
+        <span class="method-badge get">GET</span>
+        <span class="endpoint-path">/robots.txt</span>
+        <span class="stage-tag">Stage 1</span>
+      </div>
+      <div class="api-card-body">
+        <p class="api-desc">
+          Standard web file listing disallowed paths for search crawlers.
+          Always check this first.
+        </p>
+        <button class="api-send" onclick="sendReq('robots')">Send Request</button>
+        <pre class="api-response" id="res-robots"></pre>
+      </div>
+    </div>
+
+    <!-- CARD 2: Secret Room -->
+    <div class="api-card">
+      <div class="api-card-head">
+        <span class="method-badge get">GET</span>
+        <span class="endpoint-path">/s3cr3t-r00m</span>
+        <span class="stage-tag">Stage 1</span>
+      </div>
+      <div class="api-card-body">
+        <p class="api-desc">
+          A path discovered via robots.txt recon. What does the hidden room contain?
+        </p>
+        <button class="api-send" onclick="sendReq('secret')">Send Request</button>
+        <pre class="api-response" id="res-secret"></pre>
+      </div>
+    </div>
+
+    <!-- CARD 3: Login (SQLi) -->
+    <div class="api-card">
+      <div class="api-card-head">
+        <span class="method-badge post">POST</span>
+        <span class="endpoint-path">/api/login</span>
+        <span class="stage-tag">Stage 2</span>
+      </div>
+      <div class="api-card-body">
+        <p class="api-desc">
+          Authentication endpoint. The query is constructed without parameterisation.
+          Think about how SQL boolean logic works.
+        </p>
+        <div class="api-field">
+          <label for="login-user">username</label>
+          <input id="login-user" type="text" placeholder="e.g. admin" />
+        </div>
+        <div class="api-field">
+          <label for="login-pass">password</label>
+          <input id="login-pass" type="password" placeholder="anything" />
+        </div>
+        <button class="api-send" onclick="sendReq('login')">Send Request</button>
+        <pre class="api-response" id="res-login"></pre>
+      </div>
+    </div>
+
+    <!-- CARD 4: Profile (JWT) -->
+    <div class="api-card">
+      <div class="api-card-head">
+        <span class="method-badge get">GET</span>
+        <span class="endpoint-path">/api/profile</span>
+        <span class="stage-tag">Stage 3</span>
+      </div>
+      <div class="api-card-body">
+        <p class="api-desc">
+          Requires a Bearer token. Examine the token from Stage 2.
+          Decode each part (base64url). Study the header — the key might be closer than you think.
+          Then forge a token with an elevated role.
+        </p>
+        <div class="api-field">
+          <label for="profile-token">Bearer Token (paste forged token)</label>
+          <textarea id="profile-token" placeholder="Paste your JWT here..."></textarea>
+        </div>
+        <button class="api-send" onclick="sendReq('profile')">Send Request</button>
+        <pre class="api-response" id="res-profile"></pre>
+      </div>
+    </div>
+
+    <!-- CARD 5: File Server (Path Traversal) -->
+    <div class="api-card">
+      <div class="api-card-head">
+        <span class="method-badge get">GET</span>
+        <span class="endpoint-path">/4p1/f1l3s</span>
+        <span class="stage-tag">Stage 4</span>
+      </div>
+      <div class="api-card-body">
+        <p class="api-desc">
+          Legacy file-serving endpoint. Accepts a <code>?path=</code> parameter.
+          The hint from Stage 3 (decode ROT13) tells you exactly where to look.
+          Try navigating outside the intended directory.
+        </p>
+        <div class="api-field">
+          <label for="file-path">path parameter</label>
+          <input id="file-path" type="text" placeholder="e.g. readme.txt" />
+        </div>
+        <button class="api-send" onclick="sendReq('files')">Send Request</button>
+        <pre class="api-response" id="res-files"></pre>
+      </div>
+    </div>
+
+    <!-- CARD 6: Admin Panel -->
+    <div class="api-card">
+      <div class="api-card-head">
+        <span class="method-badge get">GET</span>
+        <span class="endpoint-path">/4dm1n</span>
+        <span class="stage-tag">Stage 5</span>
+      </div>
+      <div class="api-card-body">
+        <p class="api-desc">
+          The final control panel. You need the highest clearance.
+          Using everything you've learned — forge a token with the right role
+          and claim the last flag.
+        </p>
+        <div class="api-field">
+          <label for="admin-token">Bearer Token (admin-level)</label>
+          <textarea id="admin-token" placeholder="Paste your admin JWT here..."></textarea>
+        </div>
+        <button class="api-send" onclick="sendReq('admin')">Send Request</button>
+        <pre class="api-response" id="res-admin"></pre>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ROT13 DECODER TOOL -->
+  <div style="max-width:1100px;margin:0 auto;padding:0 2.5rem 3rem;">
+    <hr class="divider" />
+    <p class="section-label">// Utility Tools</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;margin-top:1.5rem;">
+
+      <!-- ROT13 -->
+      <div class="api-card">
+        <div class="api-card-head">
+          <span class="method-badge get" style="background:rgba(0,100,200,.15);color:#5aa9ff;border-color:rgba(0,100,200,.3);">TOOL</span>
+          <span class="endpoint-path">ROT13 Decoder</span>
+        </div>
+        <div class="api-card-body">
+          <p class="api-desc">Decode ROT13-encoded transmissions received from the server.</p>
+          <div class="api-field">
+            <label for="rot13-in">Encoded Text</label>
+            <textarea id="rot13-in" placeholder="Paste encoded message here..."></textarea>
+          </div>
+          <button class="api-send" onclick="runRot13()">Decode</button>
+          <pre class="api-response show" id="rot13-out" style="color:var(--text-dim);">[ decoded output will appear here ]</pre>
+        </div>
+      </div>
+
+      <!-- Base64 Decoder -->
+      <div class="api-card">
+        <div class="api-card-head">
+          <span class="method-badge get" style="background:rgba(0,100,200,.15);color:#5aa9ff;border-color:rgba(0,100,200,.3);">TOOL</span>
+          <span class="endpoint-path">Base64URL Decoder</span>
+        </div>
+        <div class="api-card-body">
+          <p class="api-desc">Decode JWT parts or base64url-encoded data. Paste a single JWT segment.</p>
+          <div class="api-field">
+            <label for="b64-in">Base64URL Input</label>
+            <textarea id="b64-in" placeholder="Paste a JWT header or payload segment..."></textarea>
+          </div>
+          <button class="api-send" onclick="runB64()">Decode</button>
+          <pre class="api-response show" id="b64-out" style="color:var(--text-dim);">[ decoded output will appear here ]</pre>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>THE FORGOTTEN ENDPOINT &mdash; CTF Challenge</p>
+  </footer>
+
+  <script>
+    // Restore token from session storage
+    const savedToken = sessionStorage.getItem('token');
+    if (savedToken) {
+      document.getElementById('token-display').textContent = savedToken;
+      document.getElementById('profile-token').value = savedToken;
+    }
+
+    // ── API Requests ────────────────────────────────────────
+    async function sendReq(type) {
+      const resEl  = document.getElementById(`res-${type}`);
+      resEl.textContent = 'Sending...';
+      resEl.className   = 'api-response show';
+
+      try {
+        let res, data;
+
+        if (type === 'robots') {
+          res  = await fetch('/robots.txt');
+          data = await res.text();
+          resEl.textContent = data;
+
+        } else if (type === 'secret') {
+          res  = await fetch('/s3cr3t-r00m');
+          data = await res.json();
+          resEl.textContent = JSON.stringify(data, null, 2);
+          if (res.ok) resEl.classList.add('success');
+
+        } else if (type === 'login') {
+          const username = document.getElementById('login-user').value;
+          const password = document.getElementById('login-pass').value;
+          res  = await fetch('/api/login', {
+            method : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body   : JSON.stringify({ username, password }),
+          });
+          data = await res.json();
+          resEl.textContent = JSON.stringify(data, null, 2);
+          if (res.ok) {
+            resEl.classList.add('success');
+            if (data.access_token) {
+              sessionStorage.setItem('token', data.access_token);
+              document.getElementById('token-display').textContent = data.access_token;
+              document.getElementById('profile-token').value = data.access_token;
+            }
+          } else { resEl.classList.add('error'); }
+
+        } else if (type === 'profile') {
+          const token = document.getElementById('profile-token').value.trim();
+          res  = await fetch('/api/profile', {
+            headers: { 'Authorization': `Bearer ${token}` },
+          });
+          data = await res.json();
+          resEl.textContent = JSON.stringify(data, null, 2);
+          if (res.ok) resEl.classList.add('success');
+          else resEl.classList.add('error');
+
+        } else if (type === 'files') {
+          const p  = document.getElementById('file-path').value.trim();
+          res  = await fetch(`/4p1/f1l3s?path=${encodeURIComponent(p)}`);
+          data = await res.json();
+          resEl.textContent = JSON.stringify(data, null, 2);
+          if (res.ok) resEl.classList.add('success');
+          else resEl.classList.add('error');
+
+        } else if (type === 'admin') {
+          const token = document.getElementById('admin-token').value.trim();
+          res  = await fetch('/4dm1n', {
+            headers: { 'Authorization': `Bearer ${token}` },
+          });
+          data = await res.json();
+          resEl.textContent = JSON.stringify(data, null, 2);
+          if (res.ok) resEl.classList.add('success');
+          else resEl.classList.add('error');
+        }
+
+      } catch (err) {
+        resEl.textContent = `Error: ${err.message}`;
+        resEl.classList.add('error');
+      }
+    }
+
+    // ── Utility: ROT13 ──────────────────────────────────────
+    function rot13(str) {
+      return str.replace(/[a-zA-Z]/g, c => {
+        const base = c <= 'Z' ? 65 : 97;
+        return String.fromCharCode(((c.charCodeAt(0) - base + 13) % 26) + base);
+      });
+    }
+    function runRot13() {
+      const out = document.getElementById('rot13-out');
+      out.textContent = rot13(document.getElementById('rot13-in').value);
+      out.style.color = 'var(--green)';
+    }
+
+    // ── Utility: Base64URL Decode ────────────────────────────
+    function runB64() {
+      const out = document.getElementById('b64-out');
+      try {
+        const input   = document.getElementById('b64-in').value.trim();
+        const decoded = atob(input.replace(/-/g, '+').replace(/_/g, '/'));
+        try {
+          const parsed = JSON.parse(decoded);
+          out.textContent = JSON.stringify(parsed, null, 2);
+        } catch {
+          out.textContent = decoded;
+        }
+        out.style.color = 'var(--green)';
+      } catch {
+        out.textContent = 'Invalid base64url input.';
+        out.style.color = 'var(--red)';
+      }
+    }
+  </script>
+</body>
+</html>

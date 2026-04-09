@@ -1,0 +1,13 @@
+{
+  "name": "the-forgotten-endpoint",
+  "version": "1.0.0",
+  "description": "CTF Challenge: The Forgotten Endpoint",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
+}

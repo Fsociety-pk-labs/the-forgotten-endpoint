@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Login — The Forgotten Endpoint</title>
+  <meta name="description" content="Omnivore Corp secure agent authentication portal." />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="/" class="nav-logo">fsociety</a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/login.html">Login</a></li>
+      <li><a href="/terminal.html">Terminal</a></li>
+    </ul>
+  </nav>
+
+  <!-- LOGIN FORM -->
+  <main class="auth-wrapper">
+    <div class="auth-card">
+
+      <div class="auth-logo">
+        <div class="logo-text">OMNIVORE CORP</div>
+        <div class="logo-sub">Secure Agent Authentication Portal</div>
+      </div>
+
+      <!-- Stage 2 hint is intentionally absent from source -->
+      <form id="login-form" autocomplete="off">
+        <div class="form-group">
+          <label class="form-label" for="username">Agent ID</label>
+          <input
+            id="username"
+            class="form-input"
+            type="text"
+            name="username"
+            placeholder="Enter agent identifier"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Access Key</label>
+          <input
+            id="password"
+            class="form-input"
+            type="password"
+            name="password"
+            placeholder="••••••••••••"
+            required
+          />
+        </div>
+
+        <button type="submit" class="form-submit" id="submit-btn">
+          Authenticate
+        </button>
+      </form>
+
+      <div id="response-box"></div>
+
+      <p class="auth-note">
+        CLASSIFIED SYSTEM — Unauthorised access is monitored.<br />
+        All login attempts are logged and reviewed.
+      </p>
+
+    </div>
+  </main>
+
+  <script>
+    const form   = document.getElementById('login-form');
+    const resBox = document.getElementById('response-box');
+    const btn    = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      btn.textContent = 'Processing...';
+      btn.disabled = true;
+      resBox.className = '';
+      resBox.classList.remove('show');
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const res  = await fetch('/api/login', {
+          method : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body   : JSON.stringify({ username, password }),
+        });
+
+        const data = await res.json();
+        resBox.textContent = JSON.stringify(data, null, 2);
+        resBox.classList.add('show');
+
+        if (res.ok) {
+          resBox.style.color = 'var(--amber)';
+          // Save token for use in terminal
+          if (data.access_token) {
+            sessionStorage.setItem('token', data.access_token);
+          }
+        } else {
+          resBox.classList.add('error');
+        }
+      } catch {
+        resBox.textContent = 'Network error. Is the server running?';
+        resBox.classList.add('show', 'error');
+      }
+
+      btn.textContent = 'Authenticate';
+      btn.disabled = false;
+    });
+  </script>
+</body>
+</html>
