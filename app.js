@@ -87,6 +87,8 @@ app.get('/s3cr3t-r00m', (_req, res) => {
     status  : 'ACCESS GRANTED',
     message : 'You found the forgotten room. The first transmission is yours.',
     flag    : FLAGS.f1,
+    flag_number: '1/5',
+    flag_status: '🚩 FLAG 1/5 CAPTURED!',
     next    : 'Their login portal is weak. Social engineering? No — think SQL. Try /login',
   });
 });
@@ -127,6 +129,8 @@ app.post('/api/login', (req, res) => {
       query_executed: rawQuery,
       message       : 'Authentication gate destroyed. Welcome, unknown operative.',
       flag          : FLAGS.f2,
+      flag_number   : '2/5',
+      flag_status   : '🚩 FLAG 2/5 CAPTURED!',
       access_token  : token,
       directive     : 'Decode the token. Understand its structure. Then forge it.',
     });
@@ -172,6 +176,8 @@ app.get('/api/profile', (req, res) => {
       status      : 'ELEVATED ACCESS',
       user        : payload.user,
       flag        : FLAGS.f3,
+      flag_number : '3/5',
+      flag_status : '🚩 FLAG 3/5 CAPTURED!',
       transmission: 'The file API is running on a legacy Apache-style route.',
       // Encoded with ROT13 — decode it to find the next path
       encoded_msg : "gur cngu vfa'g fnavgvmrq. gel ../../frperg/synt4.gkg",
@@ -263,6 +269,8 @@ app.get('/4dm1n', (req, res) => {
   res.json({
     status             : '██ MISSION COMPLETE ██',
     flag               : FLAGS.f5,
+    flag_number        : '5/5',
+    flag_status        : '🚩 FLAG 5/5 CAPTURED!',
     final_transmission : 'The forgotten endpoint has fallen. The society never forgets.',
     agent              : payload.user,
   });
