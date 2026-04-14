@@ -334,6 +334,36 @@
         out.style.color = 'var(--red)';
       }
     }
+
+    // ── Flag Highlighting in Responses ──────────────────────
+    function highlightFlagsInResponse(element) {
+      if (!element) return;
+      
+      const text = element.textContent;
+      if (!text.includes('fsociety{')) return;
+      
+      // Highlight flag text with special styling
+      const highlightedText = text.replace(
+        /(fsociety\{[^}]+\})/g,
+        '🚩 $1 🚩'
+      );
+      
+      element.textContent = highlightedText;
+      element.style.cssText += '; animation: response-glow 2s ease-in-out infinite;';
+      
+      // Add flag indicator
+      if (text.includes('flag_number')) {
+        element.classList.add('has-flag');
+      }
+    }
+
+    // ── Override sendReq to add flag highlighting ────────────
+    const originalSendReq = window.sendReq;
+    window.sendReq = async function(type) {
+      await originalSendReq(type);
+      const resEl = document.getElementById(`res-${type}`);
+      highlightFlagsInResponse(resEl);
+    };
   </script>
 </body>
 </html>

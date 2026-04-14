@@ -340,10 +340,26 @@ code, pre { font-family: var(--font-mono); }
 .prompt { color: var(--red); }
 .output { color: var(--green-dim); }
 .comment{ color: var(--text-faint); }
+
+@keyframes flag-highlight-pulse {
+  0%, 100% { 
+    color: var(--amber);
+    text-shadow: 0 0 8px rgba(255,183,0,.6), 0 0 15px rgba(255,183,0,.3);
+  }
+  50% { 
+    color: #ffcc00;
+    text-shadow: 0 0 15px rgba(255,183,0,1), 0 0 25px rgba(255,183,0,.7), 0 0 35px rgba(255,183,0,.4);
+  }
+}
+
 .flag-text {
   color      : var(--amber);
   font-weight: bold;
-  text-shadow: 0 0 8px rgba(255,183,0,.4);
+  text-shadow: 0 0 12px rgba(255,183,0,.7);
+  animation  : flag-highlight-pulse 1.5s ease-in-out infinite;
+  padding    : 0.3rem 0.6rem;
+  border-radius: 3px;
+  background : rgba(255,183,0,.1);
 }
 
 /* Blinking cursor */
@@ -729,7 +745,21 @@ code, pre { font-family: var(--font-mono); }
 }
 .api-response.show   { display: block; }
 .api-response.error  { color: var(--red); border-color: var(--border-red); }
-.api-response.success{ color: var(--amber); border-color: rgba(255,183,0,.3); }
+.api-response.success{ 
+  color: var(--amber); 
+  border-color: rgba(255,183,0,.5);
+  box-shadow: 0 0 20px rgba(255,183,0,.2), inset 0 0 10px rgba(255,183,0,.05);
+  animation: response-glow 2s ease-in-out infinite;
+}
+
+@keyframes response-glow {
+  0%, 100% { 
+    box-shadow: 0 0 15px rgba(255,183,0,.15), inset 0 0 8px rgba(255,183,0,.03);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(255,183,0,.3), inset 0 0 15px rgba(255,183,0,.08);
+  }
+}
 
 /* ── FOOTER ───────────────────────────────────────────────── */
 .footer {
